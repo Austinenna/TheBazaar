@@ -31,7 +31,7 @@ const DEFAULT_CONFIG = {
   },
   cardDisplay: {
     metaFields: ["hero", "size", "tier"],
-    statFields: ["damage", "heal", "shield"],
+    statFields: ["damage", "heal", "shield", "skills", "skills_passive"],
     showTags: true,
     tagLimit: 8,
   },
@@ -153,6 +153,31 @@ function getFieldLabel(key) {
   return labels[k] || translateText(k);
 }
 
+function formatFieldValue(value) {
+  if (value == null) return "";
+
+  if (Array.isArray(value)) {
+    const text = value
+      .map((entry) => {
+        if (entry && typeof entry === "object") {
+          const cn = safeStr(entry.cn);
+          const en = safeStr(entry.en);
+          return cn || translateText(en);
+        }
+        return translateText(safeStr(entry));
+      })
+      .filter(Boolean)
+      .join("；");
+    return text;
+  }
+
+  if (typeof value === "object") {
+    return translateText(JSON.stringify(value));
+  }
+
+  return translateText(safeStr(value));
+}
+
 function mergeConfig(userConfig = {}) {
   state.config = {
     ...DEFAULT_CONFIG,
@@ -199,7 +224,7 @@ function getMetaToken(item, key) {
     tier: item._tierDisplay ? `起始品质: ${item._tierDisplay}` : "",
   };
   if (map[key]) return map[key];
-  const raw = safeStr(item[key]);
+  const raw = formatFieldValue(item[key]);
   return raw ? `${getFieldLabel(key)}: ${translateText(raw)}` : "";
 }
 
@@ -214,7 +239,7 @@ function getStatToken(item, key) {
     cooldown: `冷却 ${toNum(item.cooldown)}`,
   };
   if (map[key]) return map[key];
-  const raw = safeStr(item[key]);
+  const raw = formatFieldValue(item[key]);
   return raw ? `${getFieldLabel(key)}: ${translateText(raw)}` : "";
 }
 
@@ -395,11 +420,45 @@ function renderCards() {
     node.querySelector(".name-en").textContent = item._nameCn ? "" : translateText(item._nameEn);
     const metaFields = state.config.cardDisplay.metaFields || [];
     const statFields = state.config.cardDisplay.statFields || [];
+    const multilineStatKeys = new Set(["skills", "skills_passive"]);
     const metaText = metaFields.map((k) => getMetaToken(item, k)).filter(Boolean).join(" | ");
-    const statText = statFields.map((k) => getStatToken(item, k)).filter(Boolean).join(" | ");
 
     node.querySelector(".meta").textContent = metaText;
-    node.querySelector(".stats").textContent = statText;
+    const statsEl = node.querySelector(".stats");
+    statsEl.textContent = "";
+
+    const inlineStats = [];
+    const multilineStats = [];
+    statFields.forEach((key) => {
+      const token = getStatToken(item, key);
+      if (!token) return;
+      if (multilineStatKeys.has(key)) multilineStats.push({ key, text: token });
+      else inlineStats.push(token);
+    });
+
+    if (inlineStats.length > 0) {
+      const line = document.createElement("div");
+      line.className = "stat-line";
+      line.textContent = inlineStats.join(" | ");
+      statsEl.appendChild(line);
+    }
+
+    multilineStats.forEach(({ key, text }) => {
+      const line = document.createElement("div");
+      const typeClass = key === "skills_passive" ? "stat-line--passive" : "stat-line--active";
+      line.className = `stat-line ${typeClass}`;
+      const badge = document.createElement("span");
+      badge.className = "stat-kind";
+      badge.textContent = key === "skills_passive" ? "被动" : "技能";
+
+      const content = document.createElement("span");
+      content.className = "stat-content";
+      content.textContent = text;
+
+      line.appendChild(badge);
+      line.appendChild(content);
+      statsEl.appendChild(line);
+    });
 
     const chips = node.querySelector(".chips");
     if (state.config.cardDisplay.showTags) {

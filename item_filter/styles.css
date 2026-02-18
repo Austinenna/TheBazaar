@@ -174,6 +174,55 @@ button {
   color: #2f4d60;
 }
 
+.stats .stat-line + .stat-line {
+  margin-top: 4px;
+}
+
+.stats .stat-line--active {
+  background: #eef8ff;
+  border-left: 3px solid #2f86c9;
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.stats .stat-line--passive {
+  background: #f6f2ff;
+  border-left: 3px solid #7b5cc7;
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.stats .stat-kind {
+  display: inline-block;
+  min-width: 32px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.2;
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: #fff;
+  flex: 0 0 auto;
+}
+
+.stats .stat-line--active .stat-kind {
+  background: #2f86c9;
+}
+
+.stats .stat-line--passive .stat-kind {
+  background: #7b5cc7;
+}
+
+.stats .stat-content {
+  flex: 1 1 auto;
+  line-height: 1.4;
+}
+
 .chips {
   margin-top: 6px;
   display: flex;

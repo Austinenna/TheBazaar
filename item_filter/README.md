@@ -30,7 +30,7 @@ python3 -m http.server 8000
   - `cardIcon`：图标高度和尺寸倍率
   - `cardDisplay`：卡片展示词条配置
     - `metaFields` 可选：`hero`、`size`、`tier`，也支持直接写 `items_db.json` 里的任意字段名
-    - `statFields` 可选：`damage`、`heal`、`shield`、`burn`、`poison`、`crit`、`cooldown`，也支持任意字段名（如 `damage_tiers`）
+    - `statFields` 可选：`damage`、`heal`、`shield`、`burn`、`poison`、`crit`、`cooldown`、`skills`、`skills_passive`，也支持任意字段名（如 `damage_tiers`）
     - `showTags`：是否展示标签
     - `tagLimit`：最多显示多少个标签
   - `translation`：展示翻译层配置
