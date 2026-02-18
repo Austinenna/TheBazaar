@@ -28,4 +28,9 @@ python3 -m http.server 8000
   - `filterOptionOrder`：`heroes`、`tiers`、`sizes`、`sorts`、`tags` 的顺序
   - `sortOptionLabels`：排序选项显示文案
   - `cardIcon`：图标高度和尺寸倍率
+  - `cardDisplay`：卡片展示词条配置
+    - `metaFields` 可选：`hero`、`size`、`tier`，也支持直接写 `items_db.json` 里的任意字段名
+    - `statFields` 可选：`damage`、`heal`、`shield`、`burn`、`poison`、`crit`、`cooldown`，也支持任意字段名（如 `damage_tiers`）
+    - `showTags`：是否展示标签
+    - `tagLimit`：最多显示多少个标签
 - 未配置到的选项会自动排在后面。

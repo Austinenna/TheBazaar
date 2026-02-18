@@ -29,6 +29,12 @@ const DEFAULT_CONFIG = {
       Large: 1.5,
     },
   },
+  cardDisplay: {
+    metaFields: ["hero", "size", "tier"],
+    statFields: ["damage", "heal", "shield"],
+    showTags: true,
+    tagLimit: 8,
+  },
 };
 
 const state = {
@@ -111,7 +117,37 @@ function mergeConfig(userConfig = {}) {
         ...((userConfig.cardIcon && userConfig.cardIcon.widthMultiplier) || {}),
       },
     },
+    cardDisplay: {
+      ...DEFAULT_CONFIG.cardDisplay,
+      ...(userConfig.cardDisplay || {}),
+    },
   };
+}
+
+function getMetaToken(item, key) {
+  const map = {
+    hero: item._heroDisplay ? `英雄: ${item._heroDisplay}` : "",
+    size: item._sizeDisplay ? `尺寸: ${item._sizeDisplay}` : "",
+    tier: item._tierDisplay ? `起始品质: ${item._tierDisplay}` : "",
+  };
+  if (map[key]) return map[key];
+  const raw = safeStr(item[key]);
+  return raw ? `${key}: ${raw}` : "";
+}
+
+function getStatToken(item, key) {
+  const map = {
+    damage: `伤害 ${item._damage}`,
+    heal: `治疗 ${item._heal}`,
+    shield: `护盾 ${item._shield}`,
+    burn: `灼烧 ${toNum(item.burn)}`,
+    poison: `剧毒 ${toNum(item.poison)}`,
+    crit: `暴击 ${toNum(item.crit)}`,
+    cooldown: `冷却 ${toNum(item.cooldown)}`,
+  };
+  if (map[key]) return map[key];
+  const raw = safeStr(item[key]);
+  return raw ? `${key}: ${raw}` : "";
 }
 
 function sortByCustomOrder(values, orderList = []) {
@@ -288,24 +324,24 @@ function renderCards() {
 
     node.querySelector(".name-cn").textContent = item._nameCn || item._nameEn || "(未命名)";
     node.querySelector(".name-en").textContent = item._nameCn ? "" : item._nameEn;
-    node.querySelector(".meta").textContent = [
-      item._heroDisplay && `英雄: ${item._heroDisplay}`,
-      item._sizeDisplay && `尺寸: ${item._sizeDisplay}`,
-      item._tierDisplay && `起始品质: ${item._tierDisplay}`,
-    ]
-      .filter(Boolean)
-      .join(" | ");
-    node.querySelector(
-      ".stats"
-    ).textContent = `伤害 ${item._damage} | 治疗 ${item._heal} | 护盾 ${item._shield}`;
+    const metaFields = state.config.cardDisplay.metaFields || [];
+    const statFields = state.config.cardDisplay.statFields || [];
+    const metaText = metaFields.map((k) => getMetaToken(item, k)).filter(Boolean).join(" | ");
+    const statText = statFields.map((k) => getStatToken(item, k)).filter(Boolean).join(" | ");
+
+    node.querySelector(".meta").textContent = metaText;
+    node.querySelector(".stats").textContent = statText;
 
     const chips = node.querySelector(".chips");
-    item._tags.slice(0, 8).forEach((tag) => {
-      const chip = document.createElement("span");
-      chip.className = "chip";
-      chip.textContent = tag;
-      chips.appendChild(chip);
-    });
+    if (state.config.cardDisplay.showTags) {
+      const limit = Number(state.config.cardDisplay.tagLimit) || 8;
+      item._tags.slice(0, limit).forEach((tag) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = tag;
+        chips.appendChild(chip);
+      });
+    }
 
     frag.appendChild(node);
   });

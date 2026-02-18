@@ -21,5 +21,11 @@
       "Medium": 1,
       "Large": 1.5
     }
+  },
+  "cardDisplay": {
+    "metaFields": ["hero", "size", "tier"],
+    "statFields": ["damage", "heal", "shield", "damage_tiers", "cooldown"],
+    "showTags": true,
+    "tagLimit": 8
   }
 }
