@@ -183,9 +183,11 @@ button {
   margin-top: 6px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 7px;
   font-size: 11px;
-  color: #3e4a5a;
+  color: #2f3745;
+  border-top: 1px solid #edf1f7;
+  padding-top: 7px;
 }
 
 .stats .stat-line--active,
@@ -235,36 +237,45 @@ button {
 }
 
 .special-stats .stat-line {
-  padding: 3px 6px;
-  border-radius: 7px;
-  gap: 6px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  gap: 8px;
+  border-left-width: 0;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset;
 }
 
 .special-stats .stat-line--active {
-  background: #f3f8ff;
-  border-left-color: #7fb3e3;
+  background: linear-gradient(135deg, #f1f8ff 0%, #e8f3ff 100%);
+  border-color: #d3e5ff;
 }
 
 .special-stats .stat-line--passive {
-  background: #f7f4ff;
-  border-left-color: #a790d9;
+  background: linear-gradient(135deg, #f8f4ff 0%, #f0e9ff 100%);
+  border-color: #e2d7ff;
 }
 
 .special-stats .stat-line--tier {
-  background: #f1f8f3;
-  border-left-color: #7ab997;
+  background: linear-gradient(135deg, #f1faf4 0%, #e9f6ee 100%);
+  border-color: #d3eadc;
 }
 
 .special-stats .stat-kind {
-  min-width: 28px;
+  min-width: 38px;
   font-size: 10px;
-  padding: 1px 5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  padding: 4px 7px;
   border-radius: 999px;
+  margin-top: 1px;
 }
 /* 技能字号 */
 .special-stats .stat-content {
-  font-size: 12px;
-  line-height: 1.3;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #374151;
+  word-break: break-word;
 }
 
 .stats .stat-line--active .stat-kind,
