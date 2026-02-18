@@ -4,7 +4,6 @@
 - 关键词搜索（中文/英文/技能文本）
 - 英雄、尺寸、起始品质筛选
 - 标签多选（AND 逻辑）
-- 最小伤害/治疗/护盾筛选
 - 物品图标显示（按 `id.webp` 匹配，缺图自动占位）
 
 ## 运行方式
@@ -22,7 +21,11 @@ python3 -m http.server 8000
 - `../resources/items_db.json`
 - `../resources/images/{item_id}.webp`
 
-## 自定义筛选顺序
-- 在 `script.js` 顶部的 `FILTER_OPTION_ORDER` 里配置：
-  - `heroes`、`tiers`、`sizes`、`sorts`、`tags`
+## 配置文件
+- 在 `config.json` 中配置：
+  - `dbPath`：物品数据路径
+  - `iconBase`：图标目录
+  - `filterOptionOrder`：`heroes`、`tiers`、`sizes`、`sorts`、`tags` 的顺序
+  - `sortOptionLabels`：排序选项显示文案
+  - `cardIcon`：图标高度和尺寸倍率
 - 未配置到的选项会自动排在后面。

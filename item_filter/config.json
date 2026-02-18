@@ -1,0 +1,25 @@
+{
+  "dbPath": "../resources/items_db.json",
+  "iconBase": "../resources/images",
+  "filterOptionOrder": {
+    "heroes": ["瓦内莎"],
+    "tiers": ["青铜", "白银", "黄金", "钻石", "传奇"],
+    "sizes": ["小型", "中型", "大型"],
+    "sorts": ["name", "damage", "heal", "shield"],
+    "tags": ["灼烧", "剧毒", "水系", "冻结", "护盾"]
+  },
+  "sortOptionLabels": {
+    "name": "名称",
+    "damage": "伤害高到低",
+    "heal": "治疗高到低",
+    "shield": "护盾高到低"
+  },
+  "cardIcon": {
+    "baseHeight": 72,
+    "widthMultiplier": {
+      "Small": 0.5,
+      "Medium": 1,
+      "Large": 1.5
+    }
+  }
+}

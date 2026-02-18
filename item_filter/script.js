@@ -1,31 +1,41 @@
-const DB_PATH = "../resources/items_db.json";
-const ICON_BASE = "../resources/images";
+const CONFIG_PATH = "./config.json";
 const FALLBACK_ICON =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
     "<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><rect width='100%' height='100%' fill='#e7eef5'/><text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' fill='#5b7288' font-family='sans-serif' font-size='20'>NO ICON</text></svg>"
   );
 
-// 在这里自定义筛选项顺序。未写到的项会自动排在后面（按字母顺序）。
-const FILTER_OPTION_ORDER = {
-  heroes: ["瓦内莎"],
-  tiers: ["青铜", "白银", "黄金", "钻石", "传奇"],
-  sizes: ["小型", "中型", "大型"],
-  sorts: ["name", "damage", "heal", "shield"],
-  tags: ["灼烧","剧毒","水系","冻结"],
-};
-
-const SORT_OPTION_LABELS = {
-  name: "名称",
-  damage: "伤害高到低",
-  heal: "治疗高到低",
-  shield: "护盾高到低",
+const DEFAULT_CONFIG = {
+  dbPath: "../resources/items_db.json",
+  iconBase: "../resources/images",
+  filterOptionOrder: {
+    heroes: [],
+    tiers: ["青铜", "白银", "黄金", "钻石", "传奇"],
+    sizes: ["小型", "中型", "大型"],
+    sorts: ["name", "damage", "heal", "shield"],
+    tags: [],
+  },
+  sortOptionLabels: {
+    name: "名称",
+    damage: "伤害高到低",
+    heal: "治疗高到低",
+    shield: "护盾高到低",
+  },
+  cardIcon: {
+    baseHeight: 72,
+    widthMultiplier: {
+      Small: 0.5,
+      Medium: 1,
+      Large: 1.5,
+    },
+  },
 };
 
 const state = {
   items: [],
   filtered: [],
   selectedTags: new Set(),
+  config: DEFAULT_CONFIG,
 };
 
 const el = {
@@ -81,6 +91,29 @@ function parseTokens(v) {
     .filter(Boolean);
 }
 
+function mergeConfig(userConfig = {}) {
+  state.config = {
+    ...DEFAULT_CONFIG,
+    ...userConfig,
+    filterOptionOrder: {
+      ...DEFAULT_CONFIG.filterOptionOrder,
+      ...(userConfig.filterOptionOrder || {}),
+    },
+    sortOptionLabels: {
+      ...DEFAULT_CONFIG.sortOptionLabels,
+      ...(userConfig.sortOptionLabels || {}),
+    },
+    cardIcon: {
+      ...DEFAULT_CONFIG.cardIcon,
+      ...(userConfig.cardIcon || {}),
+      widthMultiplier: {
+        ...DEFAULT_CONFIG.cardIcon.widthMultiplier,
+        ...((userConfig.cardIcon && userConfig.cardIcon.widthMultiplier) || {}),
+      },
+    },
+  };
+}
+
 function sortByCustomOrder(values, orderList = []) {
   const orderMap = new Map(orderList.map((v, i) => [v, i]));
   return [...values].sort((a, b) => {
@@ -110,7 +143,7 @@ function normalizeItem(item) {
     _damage: toNum(item.damage),
     _heal: toNum(item.heal),
     _shield: toNum(item.shield),
-    _icon: `${ICON_BASE}/${item.id}.webp`,
+    _icon: `${state.config.iconBase}/${item.id}.webp`,
   };
 }
 
@@ -129,34 +162,38 @@ function setSelectOptions(select, values) {
 }
 
 function buildSortOptions() {
-  const selected = SORT_OPTION_LABELS[el.sort.value] ? el.sort.value : "name";
-  const keys = sortByCustomOrder(Object.keys(SORT_OPTION_LABELS), FILTER_OPTION_ORDER.sorts);
+  const labels = state.config.sortOptionLabels;
+  const selected = labels[el.sort.value] ? el.sort.value : "name";
+  const keys = sortByCustomOrder(
+    Object.keys(labels),
+    state.config.filterOptionOrder.sorts || []
+  );
   el.sort.innerHTML = "";
   keys.forEach((key) => {
     const opt = document.createElement("option");
     opt.value = key;
-    opt.textContent = SORT_OPTION_LABELS[key];
+    opt.textContent = labels[key];
     el.sort.appendChild(opt);
   });
-  el.sort.value = SORT_OPTION_LABELS[selected] ? selected : keys[0];
+  el.sort.value = labels[selected] ? selected : keys[0];
 }
 
 function buildControls() {
   const heroes = sortByCustomOrder(
     [...new Set(state.items.map((x) => x._heroDisplay).filter(Boolean))],
-    FILTER_OPTION_ORDER.heroes
+    state.config.filterOptionOrder.heroes || []
   );
   const sizes = sortByCustomOrder(
     [...new Set(state.items.map((x) => x._sizeDisplay).filter(Boolean))],
-    FILTER_OPTION_ORDER.sizes
+    state.config.filterOptionOrder.sizes || []
   );
   const tiers = sortByCustomOrder(
     [...new Set(state.items.map((x) => x._tierDisplay).filter(Boolean))],
-    FILTER_OPTION_ORDER.tiers
+    state.config.filterOptionOrder.tiers || []
   );
   const tags = sortByCustomOrder(
     [...new Set(state.items.flatMap((x) => x._tags))],
-    FILTER_OPTION_ORDER.tags
+    state.config.filterOptionOrder.tags || []
   );
 
   setSelectOptions(el.hero, heroes);
@@ -236,12 +273,8 @@ function renderCards() {
 
   state.filtered.forEach((item) => {
     const node = el.template.content.firstElementChild.cloneNode(true);
-    const baseIconHeight = 72;
-    const iconWidthMultiplier = {
-      Small: 0.5,
-      Medium: 1,
-      Large: 1.5,
-    };
+    const baseIconHeight = Number(state.config.cardIcon.baseHeight) || 72;
+    const iconWidthMultiplier = state.config.cardIcon.widthMultiplier || {};
     const width = baseIconHeight * (iconWidthMultiplier[item._sizeKey] || 1);
     node.style.setProperty("--icon-width", `${width}px`);
     node.style.setProperty("--icon-height", `${baseIconHeight}px`);
@@ -308,7 +341,15 @@ function bindEvents() {
 
 async function init() {
   try {
-    const res = await fetch(DB_PATH);
+    const cfgRes = await fetch(CONFIG_PATH);
+    if (cfgRes.ok) {
+      const userConfig = await cfgRes.json();
+      mergeConfig(userConfig);
+    } else {
+      mergeConfig();
+    }
+
+    const res = await fetch(state.config.dbPath);
     const raw = await res.json();
     state.items = raw.map(normalizeItem);
     buildControls();
