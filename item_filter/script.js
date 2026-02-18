@@ -429,8 +429,34 @@ function renderCards() {
     const metaText = metaFields.map((k) => getMetaToken(item, k)).filter(Boolean).join(" | ");
 
     node.querySelector(".meta").textContent = metaText;
+    const body = node.querySelector(".body");
     const statsEl = node.querySelector(".stats");
+    const chips = node.querySelector(".chips");
+    let specialStatsEl = body.querySelector(".special-stats");
+    if (!specialStatsEl) {
+      specialStatsEl = document.createElement("div");
+      specialStatsEl.className = "special-stats";
+      body.appendChild(specialStatsEl);
+    }
+
+    // 顺序固定：基础信息 -> 普通词条 -> 标签 -> 三项独立区
+    if (body && statsEl && chips) {
+      body.insertBefore(statsEl, chips);
+      body.insertBefore(chips, specialStatsEl);
+    }
+    chips.textContent = "";
+    if (state.config.cardDisplay.showTags) {
+      const limit = Number(state.config.cardDisplay.tagLimit) || 8;
+      item._displayTags.slice(0, limit).forEach((tag) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = tag;
+        chips.appendChild(chip);
+      });
+    }
+
     statsEl.textContent = "";
+    specialStatsEl.textContent = "";
 
     const inlineStats = [];
     const multilineStats = [];
@@ -466,19 +492,8 @@ function renderCards() {
 
       line.appendChild(badge);
       line.appendChild(content);
-      statsEl.appendChild(line);
+      specialStatsEl.appendChild(line);
     });
-
-    const chips = node.querySelector(".chips");
-    if (state.config.cardDisplay.showTags) {
-      const limit = Number(state.config.cardDisplay.tagLimit) || 8;
-      item._displayTags.slice(0, limit).forEach((tag) => {
-        const chip = document.createElement("span");
-        chip.className = "chip";
-        chip.textContent = tag;
-        chips.appendChild(chip);
-      });
-    }
 
     frag.appendChild(node);
   });

@@ -174,11 +174,17 @@ button {
   color: #2f4d60;
 }
 
-.stats .stat-line + .stat-line {
+.stats .stat-line + .stat-line,
+.special-stats .stat-line + .stat-line {
   margin-top: 4px;
 }
 
-.stats .stat-line--active {
+.special-stats {
+  margin-top: 6px;
+}
+
+.stats .stat-line--active,
+.special-stats .stat-line--active {
   background: #eef8ff;
   border-left: 3px solid #2f86c9;
   padding: 4px 6px;
@@ -188,7 +194,8 @@ button {
   align-items: flex-start;
 }
 
-.stats .stat-line--passive {
+.stats .stat-line--passive,
+.special-stats .stat-line--passive {
   background: #f6f2ff;
   border-left: 3px solid #7b5cc7;
   padding: 4px 6px;
@@ -198,7 +205,8 @@ button {
   align-items: flex-start;
 }
 
-.stats .stat-line--tier {
+.stats .stat-line--tier,
+.special-stats .stat-line--tier {
   background: #eefaf1;
   border-left: 3px solid #2f9e5b;
   padding: 4px 6px;
@@ -208,7 +216,8 @@ button {
   align-items: flex-start;
 }
 
-.stats .stat-kind {
+.stats .stat-kind,
+.special-stats .stat-kind {
   display: inline-block;
   min-width: 32px;
   text-align: center;
@@ -220,19 +229,23 @@ button {
   flex: 0 0 auto;
 }
 
-.stats .stat-line--active .stat-kind {
+.stats .stat-line--active .stat-kind,
+.special-stats .stat-line--active .stat-kind {
   background: #2f86c9;
 }
 
-.stats .stat-line--passive .stat-kind {
+.stats .stat-line--passive .stat-kind,
+.special-stats .stat-line--passive .stat-kind {
   background: #7b5cc7;
 }
 
-.stats .stat-line--tier .stat-kind {
+.stats .stat-line--tier .stat-kind,
+.special-stats .stat-line--tier .stat-kind {
   background: #2f9e5b;
 }
 
-.stats .stat-content {
+.stats .stat-content,
+.special-stats .stat-content {
   flex: 1 1 auto;
   line-height: 1.4;
 }
