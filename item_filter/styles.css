@@ -139,7 +139,7 @@ button {
 
 .card {
   display: grid;
-  grid-template-columns: var(--icon-width, 72px) 1fr;
+  grid-template-columns: var(--card-icon-left-ratio, 24%) minmax(0, 1fr);
   gap: 10px;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -148,9 +148,11 @@ button {
 }
 
 .icon {
-  width: var(--icon-width, 72px);
+  width: min(100%, var(--icon-width, 72px));
+  max-width: 100%;
   height: var(--icon-height, 72px);
   object-fit: cover;
+  justify-self: start;
   border-radius: 8px;
   border: 1px solid #d6dee5;
   background: #f7fbff;
@@ -240,7 +242,7 @@ button {
   padding: 7px 9px;
   border-radius: 10px;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: var(--special-left-ratio, 22%) minmax(0, 1fr);
   column-gap: 8px;
   align-items: start;
   border-left-width: 0;
@@ -264,7 +266,8 @@ button {
 }
 
 .special-stats .stat-kind {
-  min-width: 38px;
+  width: 100%;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;

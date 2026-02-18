@@ -16,8 +16,9 @@
   },
   "cardIcon": {
     "baseHeight": 72,
+    "leftRatio": "24%",
     "widthMultiplier": {
-      "Small": 0.5,
+      "Small": 0.6,
       "Medium": 1,
       "Large": 1.5
     }
@@ -26,7 +27,8 @@
     "metaFields": ["hero", "size", "tier"],
     "statFields": ["damage", "heal", "shield", "damage_tiers","cooldown_tiers", "skills", "skills_passive"],
     "showTags": true,
-    "tagLimit": 8
+    "tagLimit": 8,
+    "specialLeftRatio": "22%"
   },
   "translation": {
     "enabled": true,

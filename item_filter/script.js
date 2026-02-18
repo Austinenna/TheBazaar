@@ -23,6 +23,7 @@ const DEFAULT_CONFIG = {
   },
   cardIcon: {
     baseHeight: 72,
+    leftRatio: "24%",
     widthMultiplier: {
       Small: 0.5,
       Medium: 1,
@@ -34,6 +35,7 @@ const DEFAULT_CONFIG = {
     statFields: ["damage", "heal", "shield", "skills", "skills_passive"],
     showTags: true,
     tagLimit: 8,
+    specialLeftRatio: "22%",
   },
   translation: {
     enabled: true,
@@ -412,6 +414,11 @@ function renderCards() {
     const width = baseIconHeight * (iconWidthMultiplier[item._sizeKey] || 1);
     node.style.setProperty("--icon-width", `${width}px`);
     node.style.setProperty("--icon-height", `${baseIconHeight}px`);
+    node.style.setProperty("--card-icon-left-ratio", safeStr(state.config.cardIcon.leftRatio) || "24%");
+    node.style.setProperty(
+      "--special-left-ratio",
+      safeStr(state.config.cardDisplay.specialLeftRatio) || "22%"
+    );
 
     const icon = node.querySelector(".icon");
     icon.src = item._icon;
