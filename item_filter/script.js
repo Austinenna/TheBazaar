@@ -168,6 +168,16 @@ function renderCards() {
 
   state.filtered.forEach((item) => {
     const node = el.template.content.firstElementChild.cloneNode(true);
+    const baseIconHeight = 72;
+    const iconWidthMultiplier = {
+      Small: 0.5,
+      Medium: 1,
+      Large: 1.5,
+    };
+    const width = baseIconHeight * (iconWidthMultiplier[item._size] || 1);
+    node.style.setProperty("--icon-width", `${width}px`);
+    node.style.setProperty("--icon-height", `${baseIconHeight}px`);
+
     const icon = node.querySelector(".icon");
     icon.src = item._icon;
     icon.loading = "lazy";
