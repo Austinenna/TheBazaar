@@ -198,6 +198,16 @@ button {
   align-items: flex-start;
 }
 
+.stats .stat-line--tier {
+  background: #eefaf1;
+  border-left: 3px solid #2f9e5b;
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
 .stats .stat-kind {
   display: inline-block;
   min-width: 32px;
@@ -216,6 +226,10 @@ button {
 
 .stats .stat-line--passive .stat-kind {
   background: #7b5cc7;
+}
+
+.stats .stat-line--tier .stat-kind {
+  background: #2f9e5b;
 }
 
 .stats .stat-content {

@@ -24,7 +24,7 @@
   },
   "cardDisplay": {
     "metaFields": ["hero", "size", "tier"],
-    "statFields": ["damage", "heal", "shield", "damage_tiers", "cooldown", "skills", "skills_passive"],
+    "statFields": ["damage", "heal", "shield", "damage_tiers", "cooldown","cooldown_tiers", "skills", "skills_passive"],
     "showTags": true,
     "tagLimit": 8
   },

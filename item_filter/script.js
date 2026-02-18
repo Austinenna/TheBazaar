@@ -237,6 +237,9 @@ function getStatToken(item, key) {
     poison: `剧毒 ${toNum(item.poison)}`,
     crit: `暴击 ${toNum(item.crit)}`,
     cooldown: `冷却 ${toNum(item.cooldown)}`,
+    skills: formatFieldValue(item.skills),
+    skills_passive: formatFieldValue(item.skills_passive),
+    cooldown_tiers: formatFieldValue(item.cooldown_tiers),
   };
   if (map[key]) return map[key];
   const raw = formatFieldValue(item[key]);
@@ -259,7 +262,8 @@ function toNum(v) {
 }
 
 function normalizeItem(item) {
-  const tags = [...parseTokens(item.tags), ...parseTokens(item.hidden_tags)];
+  const displayTags = [...parseTokens(item.tags)];
+  const filterTags = [...displayTags, ...parseTokens(item.hidden_tags)];
   return {
     ...item,
     _nameCn: safeStr(item.name_cn),
@@ -268,7 +272,8 @@ function normalizeItem(item) {
     _sizeKey: enFirst(item.size),
     _sizeDisplay: translateText(cnFirst(item.size)),
     _tierDisplay: translateText(cnFirst(item.starting_tier)),
-    _tags: Array.from(new Set(tags)).sort((a, b) => a.localeCompare(b)),
+    _displayTags: Array.from(new Set(displayTags)).sort((a, b) => a.localeCompare(b)),
+    _filterTags: Array.from(new Set(filterTags)).sort((a, b) => a.localeCompare(b)),
     _damage: toNum(item.damage),
     _heal: toNum(item.heal),
     _shield: toNum(item.shield),
@@ -321,7 +326,7 @@ function buildControls() {
     state.config.filterOptionOrder.tiers || []
   );
   const tags = sortByCustomOrder(
-    [...new Set(state.items.flatMap((x) => x._tags))],
+    [...new Set(state.items.flatMap((x) => x._filterTags))],
     state.config.filterOptionOrder.tags || []
   );
 
@@ -359,7 +364,7 @@ function matchItem(item) {
       item._nameEn,
       safeStr(item.skills?.map((x) => `${x.en} ${x.cn}`).join(" ")),
       safeStr(item.skills_passive?.map((x) => `${x.en} ${x.cn}`).join(" ")),
-      item._tags.join(" "),
+      item._filterTags.join(" "),
     ]
       .join(" ")
       .toLowerCase();
@@ -372,7 +377,7 @@ function matchItem(item) {
 
   if (state.selectedTags.size > 0) {
     for (const tag of state.selectedTags) {
-      if (!item._tags.includes(tag)) return false;
+      if (!item._filterTags.includes(tag)) return false;
     }
   }
   return true;
@@ -420,7 +425,7 @@ function renderCards() {
     node.querySelector(".name-en").textContent = item._nameCn ? "" : translateText(item._nameEn);
     const metaFields = state.config.cardDisplay.metaFields || [];
     const statFields = state.config.cardDisplay.statFields || [];
-    const multilineStatKeys = new Set(["skills", "skills_passive"]);
+    const multilineStatKeys = new Set(["skills", "skills_passive", "cooldown_tiers"]);
     const metaText = metaFields.map((k) => getMetaToken(item, k)).filter(Boolean).join(" | ");
 
     node.querySelector(".meta").textContent = metaText;
@@ -445,11 +450,15 @@ function renderCards() {
 
     multilineStats.forEach(({ key, text }) => {
       const line = document.createElement("div");
-      const typeClass = key === "skills_passive" ? "stat-line--passive" : "stat-line--active";
+      let typeClass = "stat-line--active";
+      if (key === "skills_passive") typeClass = "stat-line--passive";
+      if (key === "cooldown_tiers") typeClass = "stat-line--tier";
       line.className = `stat-line ${typeClass}`;
       const badge = document.createElement("span");
       badge.className = "stat-kind";
-      badge.textContent = key === "skills_passive" ? "被动" : "技能";
+      if (key === "skills_passive") badge.textContent = "被动";
+      else if (key === "cooldown_tiers") badge.textContent = "冷却";
+      else badge.textContent = "技能";
 
       const content = document.createElement("span");
       content.className = "stat-content";
@@ -463,7 +472,7 @@ function renderCards() {
     const chips = node.querySelector(".chips");
     if (state.config.cardDisplay.showTags) {
       const limit = Number(state.config.cardDisplay.tagLimit) || 8;
-      item._tags.slice(0, limit).forEach((tag) => {
+      item._displayTags.slice(0, limit).forEach((tag) => {
         const chip = document.createElement("span");
         chip.className = "chip";
         chip.textContent = tag;
