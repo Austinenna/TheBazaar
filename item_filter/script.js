@@ -35,6 +35,11 @@ const DEFAULT_CONFIG = {
     showTags: true,
     tagLimit: 8,
   },
+  translation: {
+    enabled: true,
+    fieldLabels: {},
+    exact: {},
+  },
 };
 
 const state = {
@@ -93,8 +98,59 @@ function parseTokens(v) {
   return s
     .split("|")
     .map((x) => cnOnly(x))
+    .map((x) => translateText(x))
     .map((x) => x.trim())
     .filter(Boolean);
+}
+
+function translateExactToken(token) {
+  const t = safeStr(token);
+  if (!t) return "";
+  const translation = state.config.translation || {};
+  if (!translation.enabled) return t;
+  const exact = translation.exact || {};
+  if (exact[t]) return exact[t];
+  const lower = t.toLowerCase();
+  for (const [k, v] of Object.entries(exact)) {
+    if (k.toLowerCase() === lower) return v;
+  }
+  return t;
+}
+
+function translateText(value) {
+  const s = safeStr(value);
+  if (!s) return "";
+
+  const direct = translateExactToken(s);
+  if (direct !== s) return direct;
+
+  if (s.includes("|")) {
+    return s
+      .split("|")
+      .map((x) => translateExactToken(x))
+      .join(" | ");
+  }
+  if (s.includes("/")) {
+    return s
+      .split("/")
+      .map((x) => translateExactToken(x))
+      .join("/");
+  }
+  if (s.includes(",")) {
+    return s
+      .split(",")
+      .map((x) => translateExactToken(x))
+      .join(", ");
+  }
+
+  return direct;
+}
+
+function getFieldLabel(key) {
+  const k = safeStr(key);
+  if (!k) return "";
+  const labels = (state.config.translation && state.config.translation.fieldLabels) || {};
+  return labels[k] || translateText(k);
 }
 
 function mergeConfig(userConfig = {}) {
@@ -121,6 +177,18 @@ function mergeConfig(userConfig = {}) {
       ...DEFAULT_CONFIG.cardDisplay,
       ...(userConfig.cardDisplay || {}),
     },
+    translation: {
+      ...DEFAULT_CONFIG.translation,
+      ...(userConfig.translation || {}),
+      fieldLabels: {
+        ...DEFAULT_CONFIG.translation.fieldLabels,
+        ...((userConfig.translation && userConfig.translation.fieldLabels) || {}),
+      },
+      exact: {
+        ...DEFAULT_CONFIG.translation.exact,
+        ...((userConfig.translation && userConfig.translation.exact) || {}),
+      },
+    },
   };
 }
 
@@ -132,7 +200,7 @@ function getMetaToken(item, key) {
   };
   if (map[key]) return map[key];
   const raw = safeStr(item[key]);
-  return raw ? `${key}: ${raw}` : "";
+  return raw ? `${getFieldLabel(key)}: ${translateText(raw)}` : "";
 }
 
 function getStatToken(item, key) {
@@ -147,7 +215,7 @@ function getStatToken(item, key) {
   };
   if (map[key]) return map[key];
   const raw = safeStr(item[key]);
-  return raw ? `${key}: ${raw}` : "";
+  return raw ? `${getFieldLabel(key)}: ${translateText(raw)}` : "";
 }
 
 function sortByCustomOrder(values, orderList = []) {
@@ -171,10 +239,10 @@ function normalizeItem(item) {
     ...item,
     _nameCn: safeStr(item.name_cn),
     _nameEn: safeStr(item.name_en),
-    _heroDisplay: cnFirst(item.heroes),
+    _heroDisplay: translateText(cnFirst(item.heroes)),
     _sizeKey: enFirst(item.size),
-    _sizeDisplay: cnFirst(item.size),
-    _tierDisplay: cnFirst(item.starting_tier),
+    _sizeDisplay: translateText(cnFirst(item.size)),
+    _tierDisplay: translateText(cnFirst(item.starting_tier)),
     _tags: Array.from(new Set(tags)).sort((a, b) => a.localeCompare(b)),
     _damage: toNum(item.damage),
     _heal: toNum(item.heal),
@@ -192,7 +260,7 @@ function setSelectOptions(select, values) {
   values.forEach((v) => {
     const opt = document.createElement("option");
     opt.value = v;
-    opt.textContent = v;
+    opt.textContent = translateText(v);
     select.appendChild(opt);
   });
 }
@@ -208,7 +276,7 @@ function buildSortOptions() {
   keys.forEach((key) => {
     const opt = document.createElement("option");
     opt.value = key;
-    opt.textContent = labels[key];
+    opt.textContent = translateText(labels[key]);
     el.sort.appendChild(opt);
   });
   el.sort.value = labels[selected] ? selected : keys[0];
@@ -251,7 +319,7 @@ function buildControls() {
       applyFilters();
     });
     const text = document.createElement("span");
-    text.textContent = tag;
+    text.textContent = translateText(tag);
     label.appendChild(checkbox);
     label.appendChild(text);
     el.tagList.appendChild(label);
@@ -322,8 +390,9 @@ function renderCards() {
       icon.src = FALLBACK_ICON;
     };
 
-    node.querySelector(".name-cn").textContent = item._nameCn || item._nameEn || "(未命名)";
-    node.querySelector(".name-en").textContent = item._nameCn ? "" : item._nameEn;
+    node.querySelector(".name-cn").textContent =
+      item._nameCn || translateText(item._nameEn) || "(未命名)";
+    node.querySelector(".name-en").textContent = item._nameCn ? "" : translateText(item._nameEn);
     const metaFields = state.config.cardDisplay.metaFields || [];
     const statFields = state.config.cardDisplay.statFields || [];
     const metaText = metaFields.map((k) => getMetaToken(item, k)).filter(Boolean).join(" | ");

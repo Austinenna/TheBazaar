@@ -33,4 +33,8 @@ python3 -m http.server 8000
     - `statFields` 可选：`damage`、`heal`、`shield`、`burn`、`poison`、`crit`、`cooldown`，也支持任意字段名（如 `damage_tiers`）
     - `showTags`：是否展示标签
     - `tagLimit`：最多显示多少个标签
+  - `translation`：展示翻译层配置
+    - `enabled`：是否启用翻译
+    - `exact`：英文到中文映射（如 `"Small": "小型"`）
+    - `fieldLabels`：字段名到中文标题映射（如 `"damage_tiers": "伤害档位"`）
 - 未配置到的选项会自动排在后面。

@@ -27,5 +27,23 @@
     "statFields": ["damage", "heal", "shield", "damage_tiers", "cooldown"],
     "showTags": true,
     "tagLimit": 8
+  },
+  "translation": {
+    "enabled": true,
+    "fieldLabels": {
+      "damage_tiers": "伤害档位",
+      "heal_tiers": "治疗档位",
+      "shield_tiers": "护盾档位"
+    },
+    "exact": {
+      "Small": "小型",
+      "Medium": "中型",
+      "Large": "大型",
+      "Bronze": "青铜",
+      "Silver": "白银",
+      "Gold": "黄金",
+      "Diamond": "钻石",
+      "Legendary": "传奇"
+    }
   }
 }
