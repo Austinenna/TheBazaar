@@ -181,6 +181,11 @@ button {
 
 .special-stats {
   margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+  color: #3e4a5a;
 }
 
 .stats .stat-line--active,
@@ -227,6 +232,39 @@ button {
   border-radius: 999px;
   color: #fff;
   flex: 0 0 auto;
+}
+
+.special-stats .stat-line {
+  padding: 3px 6px;
+  border-radius: 7px;
+  gap: 6px;
+}
+
+.special-stats .stat-line--active {
+  background: #f3f8ff;
+  border-left-color: #7fb3e3;
+}
+
+.special-stats .stat-line--passive {
+  background: #f7f4ff;
+  border-left-color: #a790d9;
+}
+
+.special-stats .stat-line--tier {
+  background: #f1f8f3;
+  border-left-color: #7ab997;
+}
+
+.special-stats .stat-kind {
+  min-width: 28px;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 999px;
+}
+/* 技能字号 */
+.special-stats .stat-content {
+  font-size: 12px;
+  line-height: 1.3;
 }
 
 .stats .stat-line--active .stat-kind,
