@@ -21,9 +21,6 @@ const el = {
   size: document.getElementById("size"),
   tier: document.getElementById("tier"),
   sort: document.getElementById("sort"),
-  minDamage: document.getElementById("minDamage"),
-  minHeal: document.getElementById("minHeal"),
-  minShield: document.getElementById("minShield"),
   tagList: document.getElementById("tagList"),
   clearTags: document.getElementById("clearTags"),
 };
@@ -32,8 +29,30 @@ function safeStr(v) {
   return (v ?? "").toString().trim();
 }
 
-function englishPart(v) {
-  return safeStr(v).split("/")[0].trim();
+function splitLang(v) {
+  const parts = safeStr(v)
+    .split("/")
+    .map((x) => x.trim())
+    .filter(Boolean);
+  return {
+    en: parts[0] || "",
+    cn: parts[1] || "",
+  };
+}
+
+function cnFirst(v) {
+  const p = splitLang(v);
+  return p.cn || p.en;
+}
+
+function cnOnly(v) {
+  const p = splitLang(v);
+  return p.cn || p.en;
+}
+
+function enFirst(v) {
+  const p = splitLang(v);
+  return p.en || p.cn;
 }
 
 function parseTokens(v) {
@@ -41,7 +60,7 @@ function parseTokens(v) {
   if (!s) return [];
   return s
     .split("|")
-    .map((x) => englishPart(x))
+    .map((x) => cnOnly(x))
     .map((x) => x.trim())
     .filter(Boolean);
 }
@@ -57,9 +76,10 @@ function normalizeItem(item) {
     ...item,
     _nameCn: safeStr(item.name_cn),
     _nameEn: safeStr(item.name_en),
-    _hero: englishPart(item.heroes),
-    _size: englishPart(item.size),
-    _tier: englishPart(item.starting_tier),
+    _heroDisplay: cnFirst(item.heroes),
+    _sizeKey: enFirst(item.size),
+    _sizeDisplay: cnFirst(item.size),
+    _tierDisplay: cnFirst(item.starting_tier),
     _tags: Array.from(new Set(tags)).sort((a, b) => a.localeCompare(b)),
     _damage: toNum(item.damage),
     _heal: toNum(item.heal),
@@ -83,9 +103,9 @@ function setSelectOptions(select, values) {
 }
 
 function buildControls() {
-  const heroes = [...new Set(state.items.map((x) => x._hero).filter(Boolean))].sort();
-  const sizes = [...new Set(state.items.map((x) => x._size).filter(Boolean))].sort();
-  const tiers = [...new Set(state.items.map((x) => x._tier).filter(Boolean))].sort();
+  const heroes = [...new Set(state.items.map((x) => x._heroDisplay).filter(Boolean))].sort();
+  const sizes = [...new Set(state.items.map((x) => x._sizeDisplay).filter(Boolean))].sort();
+  const tiers = [...new Set(state.items.map((x) => x._tierDisplay).filter(Boolean))].sort();
   const tags = [...new Set(state.items.flatMap((x) => x._tags))].sort();
 
   setSelectOptions(el.hero, heroes);
@@ -128,13 +148,9 @@ function matchItem(item) {
     if (!haystack.includes(keyword)) return false;
   }
 
-  if (el.hero.value && item._hero !== el.hero.value) return false;
-  if (el.size.value && item._size !== el.size.value) return false;
-  if (el.tier.value && item._tier !== el.tier.value) return false;
-
-  if (item._damage < toNum(el.minDamage.value)) return false;
-  if (item._heal < toNum(el.minHeal.value)) return false;
-  if (item._shield < toNum(el.minShield.value)) return false;
+  if (el.hero.value && item._heroDisplay !== el.hero.value) return false;
+  if (el.size.value && item._sizeDisplay !== el.size.value) return false;
+  if (el.tier.value && item._tierDisplay !== el.tier.value) return false;
 
   if (state.selectedTags.size > 0) {
     for (const tag of state.selectedTags) {
@@ -174,7 +190,7 @@ function renderCards() {
       Medium: 1,
       Large: 1.5,
     };
-    const width = baseIconHeight * (iconWidthMultiplier[item._size] || 1);
+    const width = baseIconHeight * (iconWidthMultiplier[item._sizeKey] || 1);
     node.style.setProperty("--icon-width", `${width}px`);
     node.style.setProperty("--icon-height", `${baseIconHeight}px`);
 
@@ -186,11 +202,11 @@ function renderCards() {
     };
 
     node.querySelector(".name-cn").textContent = item._nameCn || item._nameEn || "(未命名)";
-    node.querySelector(".name-en").textContent = item._nameEn ? `EN: ${item._nameEn}` : "";
+    node.querySelector(".name-en").textContent = item._nameCn ? "" : item._nameEn;
     node.querySelector(".meta").textContent = [
-      item._hero && `英雄: ${item._hero}`,
-      item._size && `尺寸: ${item._size}`,
-      item._tier && `起始品质: ${item._tier}`,
+      item._heroDisplay && `英雄: ${item._heroDisplay}`,
+      item._sizeDisplay && `尺寸: ${item._sizeDisplay}`,
+      item._tierDisplay && `起始品质: ${item._tierDisplay}`,
     ]
       .filter(Boolean)
       .join(" | ");
@@ -220,7 +236,7 @@ function applyFilters() {
 }
 
 function bindEvents() {
-  [el.keyword, el.minDamage, el.minHeal, el.minShield].forEach((x) => {
+  [el.keyword].forEach((x) => {
     x.addEventListener("input", applyFilters);
     x.addEventListener("change", applyFilters);
   });
