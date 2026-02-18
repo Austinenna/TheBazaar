@@ -21,3 +21,8 @@ python3 -m http.server 8000
 ## 数据来源
 - `../resources/items_db.json`
 - `../resources/images/{item_id}.webp`
+
+## 自定义筛选顺序
+- 在 `script.js` 顶部的 `FILTER_OPTION_ORDER` 里配置：
+  - `heroes`、`tiers`、`sizes`、`sorts`、`tags`
+- 未配置到的选项会自动排在后面。
