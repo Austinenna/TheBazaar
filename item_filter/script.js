@@ -236,7 +236,7 @@ function getStatToken(item, key) {
     burn: `灼烧 ${toNum(item.burn)}`,
     poison: `剧毒 ${toNum(item.poison)}`,
     crit: `暴击 ${toNum(item.crit)}`,
-    cooldown: `冷却 ${toNum(item.cooldown)}`,
+    // cooldown: `冷却 ${toNum(item.cooldown)}`,
     skills: formatFieldValue(item.skills),
     skills_passive: formatFieldValue(item.skills_passive),
     cooldown_tiers: formatFieldValue(item.cooldown_tiers),
