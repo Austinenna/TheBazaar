@@ -1,6 +1,6 @@
 {
-  "dbPath": "../resources/items_db.json",
-  "iconBase": "../resources/images",
+  "dbPath": "./resources/items_db.json",
+  "iconBase": "./resources/images",
   "filterOptionOrder": {
     "heroes": ["瓦内莎"],
     "tiers": ["青铜", "白银", "黄金", "钻石", "传奇"],
