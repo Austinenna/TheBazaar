@@ -18,8 +18,8 @@ python3 -m http.server 8000
 `http://localhost:8000/item_filter/`
 
 ## 数据来源
-- `../resources/items_db.json`
-- `../resources/images/{item_id}.webp`
+- `./resources/items_db.json`
+- `./resources/images/{item_id}.webp`
 
 ## 配置文件
 - 在 `config.json` 中配置：
@@ -38,3 +38,22 @@ python3 -m http.server 8000
     - `exact`：英文到中文映射（如 `"Small": "小型"`）
     - `fieldLabels`：字段名到中文标题映射（如 `"damage_tiers": "伤害档位"`）
 - 未配置到的选项会自动排在后面。
+
+## 自动部署（服务器子路径）
+- 线上访问路径：`http://flashmemo.site/thebazaar/`
+- 服务器目录：`/var/www/thebazaar-item-filter`
+- GitHub Actions 工作流：`.github/workflows/deploy-thebazaar.yml`
+- 触发方式：
+  - `push` 到 `main`
+  - 在 GitHub Actions 手动点击 `Run workflow`（`workflow_dispatch`）
+
+### 需要的 GitHub Secrets
+- `DEPLOY_HOST`：`flashmemo.site`
+- `DEPLOY_PORT`：`22`
+- `DEPLOY_USER`：`root`
+- `DEPLOY_KEY`：部署私钥（无 passphrase）
+
+### 部署内容
+- `item_filter/` -> `/var/www/thebazaar-item-filter/`
+- `item_filter/resources/items_db.json` -> `/var/www/thebazaar-item-filter/resources/items_db.json`
+- `item_filter/resources/images/` -> `/var/www/thebazaar-item-filter/resources/images/`

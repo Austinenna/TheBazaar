@@ -3,6 +3,7 @@ name: Deploy TheBazaar
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   deploy:
