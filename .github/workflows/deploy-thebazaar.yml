@@ -29,17 +29,28 @@ jobs:
         run: |
           rsync -az --delete \
             -e "ssh -p ${{ secrets.DEPLOY_PORT }}" \
+            --exclude "resources/" \
             item_filter/ \
             "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/thebazaar-item-filter/"
 
       - name: Deploy data files
         run: |
-          rsync -az \
-            -e "ssh -p ${{ secrets.DEPLOY_PORT }}" \
-            resources/items_db.json \
-            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/thebazaar-item-filter/resources/items_db.json"
+          if [ -f "item_filter/resources/items_db.json" ]; then
+            rsync -az \
+              -e "ssh -p ${{ secrets.DEPLOY_PORT }}" \
+              item_filter/resources/items_db.json \
+              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/thebazaar-item-filter/resources/items_db.json"
+          else
+            echo "item_filter/resources/items_db.json not found."
+            exit 1
+          fi
 
-          rsync -az --delete \
-            -e "ssh -p ${{ secrets.DEPLOY_PORT }}" \
-            resources/images/ \
-            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/thebazaar-item-filter/resources/images/"
+          if [ -d "item_filter/resources/images" ]; then
+            rsync -az --delete \
+              -e "ssh -p ${{ secrets.DEPLOY_PORT }}" \
+              item_filter/resources/images/ \
+              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/thebazaar-item-filter/resources/images/"
+          else
+            echo "item_filter/resources/images not found."
+            exit 1
+          fi
